@@ -2,47 +2,41 @@ from fastapi import FastAPI, Body
 from redis_om import NotFoundError
 
 from models import UserData
-from typing import Dict
-import os
 
-os.environ["REDIS_OM_URL"]="redis://localhost:6379/0"
 app = FastAPI()
 
+
+@app.get('/check_data')
+async def check_data(phone: str):
+    try:
+        result = UserData.get(phone)
+    except NotFoundError:
+        result = {'error': 'No resource found'}
+
+    return result
 
 
 @app.post('/write_data')
 async def write_data(
     data=Body(
         ...,
-        #regex=r'\+\d{1,15}',
         example={
-            'phone': '+7111111111',
+            'phone': '89993334444',
             'address': 'г.Москва, 3-я улица Строителей, д. 25, кв. 12',
         }
-    ),) -> Dict[str, str]:
+    ), ):
 
-    user_data = None # UserData.find(
-    #    UserData.phone == data['phone']
-    #).all()
+    try:
+        user_data = UserData.get(data['phone'])
+    except NotFoundError:
+        user_data = None
+
     if user_data:
         user_data.update(
             **data
         )
     else:
-        user_data = UserData(phone = data['phone'], address = data['address'])
+        user_data = UserData(**data)
         user_data.save()
-
     result = user_data
-    return {'success': bool(result)}
-
-
-
-@app.get('/get_add_data')
-async def get_all_data():
-    result = {}
-    try:
-        result = UserData.all.all(), 200
-    except NotFoundError:
-        result = {'error': 'No resource found'}, 404
-
-    return result
+    return {'success': str(result)}
