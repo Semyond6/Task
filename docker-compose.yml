@@ -1,0 +1,31 @@
+version: '3.8'
+
+networks:
+  backend:
+    driver: bridge
+
+services:
+  web:
+    build: .
+    command: bash -c 'while !</dev/tcp/redisserver/6379; do sleep 1; done; uvicorn main:app --host 0.0.0.0'
+    #command: bash -c 'uvicorn main:app --host 0.0.0.0'
+    volumes:
+      - .:/app
+    ports:
+      - 8000:8000
+    environment:
+      - REDIS_HOST=localhost
+    depends_on:
+      # - db_postgres
+      - redisserver
+    networks:
+      - backend
+
+  redisserver:
+    image: redis:alpine
+    ports:
+      - 6379:6379
+    networks:
+      backend:
+        aliases:
+          - "redis"
