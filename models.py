@@ -6,6 +6,8 @@ from redis_om import (
 
 
 class UserData(HashModel):
+    """Класс пользовательских данных."""
+    
     phone: str = Field(primary_key= True, index=True)
     address: str
 
