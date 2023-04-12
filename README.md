@@ -6,7 +6,7 @@ docker-compose up -d --build
 
 http://localhost:8000/docs
 
-2. Скрипт для выполнения задания о переносе данных о статусе из таблицы short_names в таблицу full_names.
+2. Скрипт для выполнения задания о переносе данных статуса из таблицы short_names в таблицу full_names.
 Поля name были созданы с указанием того, что они являются индексами.
 
 UPDATE "full_names" as f SET status = s.status 
